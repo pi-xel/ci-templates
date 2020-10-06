@@ -1,16 +1,66 @@
-map-deprecated-api:
+# This template provides supplemental jobs to convert deprecared/removed APIs
+# in the current deployments.
+#
+# Usage
+#
+# include:
+#   - project: shinya.maeda/ci-templates
+#     file: map-deprecated-api.gitlab-ci.yml
+#
+# variables:
+#   HELM_VERSION_FOR_MAPKUBEAPIS: "v2" # If you already using Helm3, please specify "v3" instead.
+
+.helm-mapkubeapis:
   extends: .auto-deploy
   stage: deploy
+  needs: []
   when: manual
-  allow_failure: true
-  script:
+  environment:
+    action: prepare
+  before_script:
     - export TILLER_NAMESPACE=$KUBE_NAMESPACE
-    - export HELM_HOST="localhost:44134"
-    - nohup tiller -listen "${HELM_HOST}" >tiller.log 2>&1 &
+    - |
+      if [[ "$HELM_VERSION_FOR_MAPKUBEAPIS" == 'v2' ]]; then
+        export HELM_HOST="localhost:44134"
+        nohup tiller -listen "${HELM_HOST}" >tiller.log 2>&1 &
+      fi
     - helm init --client-only
     - helm plugin install https://github.com/hickeyma/helm-mapkubeapis
-    - helm mapkubeapis $CI_ENVIRONMENT_SLUG --release-storage configmaps --tiller-out-cluster --namespace $TILLER_NAMESPACE --v2
+  script:
+    - |
+      if [[ "$HELM_VERSION_FOR_MAPKUBEAPIS" == 'v2' ]]; then
+        helm mapkubeapis $CI_ENVIRONMENT_SLUG --release-storage configmaps --tiller-out-cluster --namespace $TILLER_NAMESPACE --v2
+      else
+        helm mapkubeapis $CI_ENVIRONMENT_SLUG --namespace $TILLER_NAMESPACE
+      fi
+
+review:helm-mapkubeapis:
+  extends: [.helm-mapkubeapis]
+  environment:
+    name: review/$CI_COMMIT_REF_NAME
+
+staging:helm-mapkubeapis:
+  extends: [.helm-mapkubeapis]
+  environment:
+    name: review/$CI_COMMIT_REF_NAME
+  rules:
+    - if: '$MIGRATE_HELM_2TO3 != "true"'
+      when: never
+    - if: '$CI_KUBERNETES_ACTIVE == null || $CI_KUBERNETES_ACTIVE == ""'
+      when: never
+    - if: '$CI_COMMIT_BRANCH != "master"'
+      when: never
+    - if: '$STAGING_ENABLED'
+      when: manual
+
+production:helm-mapkubeapis:
+  extends: [.helm-mapkubeapis]
   environment:
     name: production
-    url: http://$CI_PROJECT_PATH_SLUG.$KUBE_INGRESS_BASE_DOMAIN
-  needs: []
+  rules:
+    - if: '$MIGRATE_HELM_2TO3 != "true"'
+      when: never
+    - if: '$CI_KUBERNETES_ACTIVE == null || $CI_KUBERNETES_ACTIVE == ""'
+      when: never
+    - if: '$CI_COMMIT_BRANCH == "master"'
+      when: manual
