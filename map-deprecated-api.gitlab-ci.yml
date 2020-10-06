@@ -1,0 +1,16 @@
+map-deprecated-api:
+  extends: .auto-deploy
+  stage: deploy
+  when: manual
+  allow_failure: true
+  script:
+    - export TILLER_NAMESPACE=$KUBE_NAMESPACE
+    - export HELM_HOST="localhost:44134"
+    - nohup tiller -listen "${HELM_HOST}" >tiller.log 2>&1 &
+    - helm init --client-only
+    - helm plugin install https://github.com/hickeyma/helm-mapkubeapis
+    - helm mapkubeapis $CI_ENVIRONMENT_SLUG --release-storage configmaps --tiller-out-cluster --namespace $TILLER_NAMESPACE --v2
+  environment:
+    name: production
+    url: http://$CI_PROJECT_PATH_SLUG.$KUBE_INGRESS_BASE_DOMAIN
+  needs: []
