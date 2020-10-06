@@ -14,7 +14,6 @@
   extends: .auto-deploy
   stage: deploy
   needs: []
-  when: manual
   environment:
     action: prepare
   before_script:
@@ -38,14 +37,21 @@ review:helm-mapkubeapis:
   extends: [.helm-mapkubeapis]
   environment:
     name: review/$CI_COMMIT_REF_NAME
+  rules:
+    - if: '$CI_KUBERNETES_ACTIVE == null || $CI_KUBERNETES_ACTIVE == ""'
+      when: never
+    - if: '$CI_COMMIT_BRANCH == "master"'
+      when: never
+    - if: '$REVIEW_DISABLED'
+      when: never
+    - if: '$CI_COMMIT_TAG || $CI_COMMIT_BRANCH'
+      when: manual
 
 staging:helm-mapkubeapis:
   extends: [.helm-mapkubeapis]
   environment:
-    name: review/$CI_COMMIT_REF_NAME
+    name: staging
   rules:
-    - if: '$MIGRATE_HELM_2TO3 != "true"'
-      when: never
     - if: '$CI_KUBERNETES_ACTIVE == null || $CI_KUBERNETES_ACTIVE == ""'
       when: never
     - if: '$CI_COMMIT_BRANCH != "master"'
@@ -58,8 +64,6 @@ production:helm-mapkubeapis:
   environment:
     name: production
   rules:
-    - if: '$MIGRATE_HELM_2TO3 != "true"'
-      when: never
     - if: '$CI_KUBERNETES_ACTIVE == null || $CI_KUBERNETES_ACTIVE == ""'
       when: never
     - if: '$CI_COMMIT_BRANCH == "master"'
