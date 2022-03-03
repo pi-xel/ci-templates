@@ -10,6 +10,65 @@
 # variables:
 #   HELM_VERSION_FOR_MAPKUBEAPIS: "v2" # If you already using Helm3, please specify "v3" instead.
 
+.helm-delete:
+  extends: .auto-deploy
+  stage: deploy
+  needs: []
+  environment:
+    action: prepare
+  before_script:
+    - export TILLER_NAMESPACE=$KUBE_NAMESPACE
+    - echo "Namespace: ${TILLER_NAMESPACE}"
+    - |
+      if [[ "$HELM_VERSION_FOR_MAPKUBEAPIS" == 'v2' ]]; then
+        export HELM_HOST="localhost:44134"
+        nohup tiller -listen "${HELM_HOST}" >tiller.log 2>&1 &
+        helm init --client-only
+      fi
+  script:
+    - |
+      if [[ "$HELM_VERSION_FOR_MAPKUBEAPIS" == 'v2' ]]; then
+        helm uninstall $CI_ENVIRONMENT_SLUG --release-storage configmaps --tiller-out-cluster --namespace $TILLER_NAMESPACE --v2
+      else
+        helm uninstall $CI_ENVIRONMENT_SLUG --namespace $TILLER_NAMESPACE
+      fi
+
+review:helm-delete:
+  extends: [.helm-delete]
+  environment:
+    name: review/$CI_COMMIT_REF_NAME
+  rules:
+    - if: '$CI_KUBERNETES_ACTIVE == null || $CI_KUBERNETES_ACTIVE == ""'
+      when: never
+    - if: '$CI_COMMIT_BRANCH == "master"'
+      when: never
+    - if: '$REVIEW_DISABLED'
+      when: never
+    - if: '$CI_COMMIT_TAG || $CI_COMMIT_BRANCH'
+      when: manual
+
+staging:helm-delete:
+  extends: [.helm-delete]
+  environment:
+    name: staging
+  rules:
+    - if: '$CI_KUBERNETES_ACTIVE == null || $CI_KUBERNETES_ACTIVE == ""'
+      when: never
+    - if: '$CI_COMMIT_BRANCH != "master"'
+      when: never
+    - if: '$STAGING_ENABLED'
+      when: manual
+
+production:helm-delete:
+  extends: [.helm-delete]
+  environment:
+    name: production
+  rules:
+    - if: '$CI_KUBERNETES_ACTIVE == null || $CI_KUBERNETES_ACTIVE == ""'
+      when: never
+    - if: '$CI_COMMIT_BRANCH == "master"'
+      when: manual
+
 .helm-mapkubeapis:
   extends: .auto-deploy
   stage: deploy
@@ -18,6 +77,7 @@
     action: prepare
   before_script:
     - export TILLER_NAMESPACE=$KUBE_NAMESPACE
+    - echo "Namespace: ${TILLER_NAMESPACE}"
     - |
       if [[ "$HELM_VERSION_FOR_MAPKUBEAPIS" == 'v2' ]]; then
         export HELM_HOST="localhost:44134"
