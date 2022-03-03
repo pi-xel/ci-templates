@@ -24,7 +24,7 @@
         nohup tiller -listen "${HELM_HOST}" >tiller.log 2>&1 &
         helm init --client-only
       fi
-    - helm plugin install https://github.com/hickeyma/helm-mapkubeapis
+    - helm plugin install https://github.com/helm/helm-mapkubeapis
   script:
     - |
       if [[ "$HELM_VERSION_FOR_MAPKUBEAPIS" == 'v2' ]]; then
