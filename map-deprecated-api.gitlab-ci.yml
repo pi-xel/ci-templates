@@ -18,7 +18,6 @@
     action: prepare
   before_script:
     - export TILLER_NAMESPACE=$KUBE_NAMESPACE
-    - echo "Namespace: ${TILLER_NAMESPACE}"
     - |
       if [[ "$HELM_VERSION_FOR_MAPKUBEAPIS" == 'v2' ]]; then
         export HELM_HOST="localhost:44134"
@@ -77,7 +76,6 @@ production:helm-delete:
     action: prepare
   before_script:
     - export TILLER_NAMESPACE=$KUBE_NAMESPACE
-    - echo "Namespace: ${TILLER_NAMESPACE}"
     - |
       if [[ "$HELM_VERSION_FOR_MAPKUBEAPIS" == 'v2' ]]; then
         export HELM_HOST="localhost:44134"
