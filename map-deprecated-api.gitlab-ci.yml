@@ -62,7 +62,7 @@ staging:helm-delete:
 rollout 100%:helm-delete:
   extends: [.helm-delete]
   environment:
-    name: production
+    name: rollout 100%
   rules:
     - if: '$CI_KUBERNETES_ACTIVE == null || $CI_KUBERNETES_ACTIVE == ""'
       when: never
@@ -122,7 +122,7 @@ staging:helm-mapkubeapis:
 rollout 100%:helm-mapkubeapis:
   extends: [.helm-mapkubeapis]
   environment:
-    name: production
+    name: rollout 100%
   rules:
     - if: '$CI_KUBERNETES_ACTIVE == null || $CI_KUBERNETES_ACTIVE == ""'
       when: never
