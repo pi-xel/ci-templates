@@ -32,21 +32,6 @@
         helm uninstall $CI_ENVIRONMENT_SLUG --namespace $TILLER_NAMESPACE
       fi
 
-review:helm-delete:
-  extends: [.helm-delete]
-  needs: []
-  environment:
-    name: review/$CI_COMMIT_REF_NAME
-  rules:
-    - if: '$CI_KUBERNETES_ACTIVE == null || $CI_KUBERNETES_ACTIVE == ""'
-      when: never
-    - if: '$CI_COMMIT_BRANCH == "master"'
-      when: never
-    - if: '$REVIEW_DISABLED'
-      when: never
-    - if: '$CI_COMMIT_TAG || $CI_COMMIT_BRANCH'
-      when: manual
-
 staging:helm-delete:
   extends: [.helm-delete]
   needs: ['staging']
@@ -94,21 +79,6 @@ production:helm-delete:
       else
         helm mapkubeapis $CI_ENVIRONMENT_SLUG --namespace $TILLER_NAMESPACE
       fi
-
-review:helm-mapkubeapis:
-  extends: [.helm-mapkubeapis]
-  needs: []
-  environment:
-    name: review/$CI_COMMIT_REF_NAME
-  rules:
-    - if: '$CI_KUBERNETES_ACTIVE == null || $CI_KUBERNETES_ACTIVE == ""'
-      when: never
-    - if: '$CI_COMMIT_BRANCH == "master"'
-      when: never
-    - if: '$REVIEW_DISABLED'
-      when: never
-    - if: '$CI_COMMIT_TAG || $CI_COMMIT_BRANCH'
-      when: manual
 
 staging:helm-mapkubeapis:
   extends: [.helm-mapkubeapis]
