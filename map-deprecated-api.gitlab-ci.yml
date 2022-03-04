@@ -13,7 +13,6 @@
 .helm-delete:
   extends: .auto-deploy
   stage: deploy
-  needs: []
   environment:
     action: prepare
   before_script:
@@ -35,6 +34,7 @@
 
 review:helm-delete:
   extends: [.helm-delete]
+  needs: ['review']
   environment:
     name: review/$CI_COMMIT_REF_NAME
   rules:
@@ -49,6 +49,7 @@ review:helm-delete:
 
 staging:helm-delete:
   extends: [.helm-delete]
+  needs: ['staging']
   environment:
     name: staging
   rules:
@@ -61,6 +62,7 @@ staging:helm-delete:
 
 production:helm-delete:
   extends: [.helm-delete]
+  needs: ['production']
   environment:
     name: production
   resource_group: production
@@ -73,7 +75,6 @@ production:helm-delete:
 .helm-mapkubeapis:
   extends: .auto-deploy
   stage: deploy
-  needs: []
   environment:
     action: prepare
   before_script:
@@ -96,6 +97,7 @@ production:helm-delete:
 
 review:helm-mapkubeapis:
   extends: [.helm-mapkubeapis]
+  needs: ['review']
   environment:
     name: review/$CI_COMMIT_REF_NAME
   rules:
@@ -110,6 +112,7 @@ review:helm-mapkubeapis:
 
 staging:helm-mapkubeapis:
   extends: [.helm-mapkubeapis]
+  needs: ['staging']
   environment:
     name: staging
   rules:
@@ -122,6 +125,7 @@ staging:helm-mapkubeapis:
 
 production:helm-mapkubeapis:
   extends: [.helm-mapkubeapis]
+  needs: ['production']
   environment:
     name: production
   resource_group: production
