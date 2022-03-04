@@ -59,10 +59,11 @@ staging:helm-delete:
     - if: '$STAGING_ENABLED'
       when: manual
 
-rollout 100%:helm-delete:
+production:helm-delete:
   extends: [.helm-delete]
   environment:
-    name: rollout 100%
+    name: production
+  resource_group: production
   rules:
     - if: '$CI_KUBERNETES_ACTIVE == null || $CI_KUBERNETES_ACTIVE == ""'
       when: never
@@ -119,10 +120,11 @@ staging:helm-mapkubeapis:
     - if: '$STAGING_ENABLED'
       when: manual
 
-rollout 100%:helm-mapkubeapis:
+production:helm-mapkubeapis:
   extends: [.helm-mapkubeapis]
   environment:
-    name: rollout 100%
+    name: production
+  resource_group: production
   rules:
     - if: '$CI_KUBERNETES_ACTIVE == null || $CI_KUBERNETES_ACTIVE == ""'
       when: never
