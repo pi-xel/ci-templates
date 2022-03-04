@@ -18,8 +18,8 @@
     action: prepare
   before_script:
     - export TILLER_NAMESPACE=$KUBE_NAMESPACE
-    - echo $TILLER_NAMESPACE
     - |
+      echo $TILLER_NAMESPACE
       if [[ "$HELM_VERSION_FOR_MAPKUBEAPIS" == 'v2' ]]; then
         export HELM_HOST="localhost:44134"
         nohup tiller -listen "${HELM_HOST}" >tiller.log 2>&1 &
@@ -77,8 +77,8 @@ production:helm-delete:
     action: prepare
   before_script:
     - export TILLER_NAMESPACE=$KUBE_NAMESPACE
-    - echo $TILLER_NAMESPACE
     - |
+      echo $TILLER_NAMESPACE
       if [[ "$HELM_VERSION_FOR_MAPKUBEAPIS" == 'v2' ]]; then
         export HELM_HOST="localhost:44134"
         nohup tiller -listen "${HELM_HOST}" >tiller.log 2>&1 &
