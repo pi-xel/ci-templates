@@ -59,7 +59,7 @@ staging:helm-delete:
     - if: '$STAGING_ENABLED'
       when: manual
 
-production:helm-delete:
+rollout 100%:helm-delete:
   extends: [.helm-delete]
   environment:
     name: production
@@ -119,7 +119,7 @@ staging:helm-mapkubeapis:
     - if: '$STAGING_ENABLED'
       when: manual
 
-production:helm-mapkubeapis:
+rollout 100%:helm-mapkubeapis:
   extends: [.helm-mapkubeapis]
   environment:
     name: production
