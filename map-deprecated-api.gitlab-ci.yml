@@ -34,7 +34,7 @@
 
 review:helm-delete:
   extends: [.helm-delete]
-  needs: ['review']
+  needs: []
   environment:
     name: review/$CI_COMMIT_REF_NAME
   rules:
@@ -97,7 +97,7 @@ production:helm-delete:
 
 review:helm-mapkubeapis:
   extends: [.helm-mapkubeapis]
-  needs: ['review']
+  needs: []
   environment:
     name: review/$CI_COMMIT_REF_NAME
   rules:
